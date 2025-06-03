@@ -30,13 +30,8 @@ val config = ServerConfig(
 )
 ```
 
-application.properties:
+config is stored in application.properties
 
-publisherPort=8088
-subscriberPort=8099
-
-noSubscribersMessage=No subscribers connected
-subscriberCountMessage={count} subscriber(s) connected
 ---
 
 ## How It Works
