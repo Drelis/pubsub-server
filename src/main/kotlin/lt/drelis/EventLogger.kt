@@ -29,3 +29,23 @@ class Log4jEventLogger : EventLogger {
         }
     }
 }
+
+class MemoryEventLogger : EventLogger {
+    val events = mutableListOf<ServerEvent>()
+
+    override fun log(event: ServerEvent) {
+        events += event
+    }
+
+    inline fun <reified T : ServerEvent> hasEventMatching(predicate: (T) -> Boolean): Boolean {
+        return events.filterIsInstance<T>().any(predicate)
+    }
+
+    inline fun <reified T : ServerEvent> count(): Int {
+        return events.count { it is T }
+    }
+
+    fun clear() {
+        events.clear()
+    }
+}

@@ -6,6 +6,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import lt.drelis.publisher.PublisherHandler
 import lt.drelis.subscriber.SubscriberHandler
+import java.io.IOException
 import java.net.ServerSocket
 import java.net.Socket
 import java.util.Collections
@@ -32,17 +33,21 @@ class TcpPubSubServer(
 
         scope.launch {
             listen(config.subscriberPort) { socket ->
-                SubscriberHandler(socket, subscribers, eventLogger, config).handle()
+                SubscriberHandler(socket, subscribers, eventLogger).handle()
             }
         }
     }
 
-    private suspend fun listen(port: Int, handle: suspend (Socket) -> Unit) {
+    private fun listen(port: Int, handle: suspend (Socket) -> Unit) {
         val server = ServerSocket(port)
         println("Listening on port $port")
         while (true) {
-            val socket = server.accept()
-            scope.launch { handle(socket) }
+            try {
+                val socket = server.accept()
+                scope.launch { handle(socket) }
+            } catch (e: IOException) {
+                eventLogger.log(ServerEvent.Error(null, e))
+            }
         }
     }
 }
